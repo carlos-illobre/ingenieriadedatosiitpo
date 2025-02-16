@@ -1,6 +1,6 @@
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { redisSet, redisGet, redisDel } from "./redis";
-import { auth } from "./firebase";
+import { redisSet, redisGet, redisDel } from "./services/redis";
+import { auth } from "./services/firebase";
 
 export const login = async (email, password) => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
