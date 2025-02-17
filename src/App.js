@@ -15,6 +15,7 @@ import './App.css';
 function App() {
   const [logs, setLogs] = useState([]);
 
+  // Función para agregar logs
   const addLog = (type, message) => {
     setLogs((prevLogs) => [...prevLogs, { type, message }]);
   };
@@ -30,13 +31,13 @@ function App() {
             <Route path="/users" element={<UserListPage addLog={addLog} />} />
             <Route path="/products" element={<ProductFormPage addLog={addLog} />} />
             <Route path="/product-list" element={<ProductListPage addLog={addLog} />} />
+            <Route path="/catalog" element={<ProductCatalogPage addLog={addLog} />} />
             <Route path="/lotes" element={<LoteFormPage addLog={addLog} />} />
             <Route path="/lotes-search" element={<LoteSearchPage addLog={addLog} />} />
-            <Route path="/catalog" element={<ProductCatalogPage addLog={addLog} />} />
           </Routes>
         </div>
       </div>
-      <LogsSection logs={logs} />
+      <LogsSection logs={logs} /> {/* Mostrar la sección de logs */}
     </Router>
   );
 }
