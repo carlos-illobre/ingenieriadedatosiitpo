@@ -26,7 +26,7 @@ const ProductCatalogPage = ({ addLog }) => {
       const result = await runQuery(query);
       const productsWithQuantity = result.records.map((record) => {
         const product = record.get('p').properties;
-        const totalCantidad = convertNeo4jNumber(record.get('totalCantidad')) || 0;
+        const totalCantidad = convertNeo4jNumber(record.get('totalCantidad')) || 0; // Convertir a número
         return {
           ...product,
           price: convertNeo4jNumber(product.price), // Convertir el precio a número
@@ -69,7 +69,7 @@ const ProductCatalogPage = ({ addLog }) => {
               <h2>{product.name}</h2>
               <p>{product.description}</p>
               <p><strong>Precio:</strong> ${product.price}</p>
-              <p><strong>Cantidad Total:</strong> {product.totalCantidad}</p>
+              <p><strong>Cantidad Total:</strong> {product.totalCantidad}</p> {/* Mostrar la cantidad total */}
             </div>
           </div>
         ))}

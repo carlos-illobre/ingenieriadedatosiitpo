@@ -239,3 +239,104 @@ tr:hover {
   font-size: 1em;
   color: #555;
 }
+
+/* Estilos para el formulario de lotes */
+.lote-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.lote-form select,
+.lote-form input {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.lote-form select:focus,
+.lote-form input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.lote-form button {
+  width: 100%;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lote-form button:hover {
+  background: #0056b3;
+}
+
+.lote-form button:active {
+  background: #004080;
+}
+
+/* Estilos para la página de búsqueda de lotes */
+.lote-search {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.lote-search select {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.lote-search select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.lote-search table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.lote-search th,
+.lote-search td {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.lote-search th {
+  background: #f4f4f4;
+  font-weight: bold;
+}
+
+.lote-search tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.lote-search tr:hover {
+  background: #f1f1f1;
+}
