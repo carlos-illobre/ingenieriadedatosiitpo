@@ -1,14 +1,21 @@
+/* Contenedor principal del layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh; /* Asegura que ocupe toda la altura de la pantalla */
+}
+
+/* Estilos para el Navbar */
 .navbar {
   background: #007bff;
   padding: 1rem;
+  width: 200px; /* Ancho fijo para el Navbar */
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* Alinea los enlaces verticalmente */
   gap: 1rem;
-  border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
 }
 
+/* Estilos para los enlaces del Navbar */
 .nav-link {
   color: white;
   text-decoration: none;
@@ -24,4 +31,11 @@
 
 .nav-link:active {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Contenedor del contenido principal */
+.main-content {
+  flex: 1; /* Ocupa el espacio restante */
+  padding: 1rem;
+  background-color: #f9f9f9; /* Fondo claro para el contenido */
 }

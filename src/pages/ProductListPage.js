@@ -29,6 +29,7 @@ const ProductListPage = ({ addLog }) => {
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Precio</th>
+            <th>Imagen</th>
           </tr>
         </thead>
         <tbody>
@@ -37,6 +38,15 @@ const ProductListPage = ({ addLog }) => {
               <td>{product.name}</td>
               <td>{product.description}</td>
               <td>${product.price}</td>
+              <td>
+                {product.imageUrl && (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    style={{ width: '100px', height: 'auto' }}
+                  />
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
