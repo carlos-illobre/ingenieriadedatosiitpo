@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
+import { redisSet } from '../services/redis';
 
-const ProductCatalogPage = ({ addLog }) => {
+const ProductCatalogPage = ({ addLog, cart, setCart }) => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5); // Número de productos por página
@@ -40,6 +41,20 @@ const ProductCatalogPage = ({ addLog }) => {
     }
   };
 
+  const handleAddToCart = (product) => {
+    const newCart = [...cart];
+    const existingItem = newCart.find((item) => item.name === product.name);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      newCart.push({ ...product, quantity: 1 });
+    }
+
+    setCart(newCart);
+    redisSet('shoppingCart', newCart);
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -70,6 +85,7 @@ const ProductCatalogPage = ({ addLog }) => {
               <p>{product.description}</p>
               <p><strong>Precio:</strong> ${product.price}</p>
               <p><strong>Cantidad Total:</strong> {product.totalCantidad}</p> {/* Mostrar la cantidad total */}
+              <button onClick={() => handleAddToCart(product)}>Agregar al Carrito</button>
             </div>
           </div>
         ))}

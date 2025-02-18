@@ -13,6 +13,7 @@ const Navbar = () => {
       <Link to="/lotes" className="nav-link">Lotes</Link>
       <Link to="/lotes-search" className="nav-link">Buscar Lotes</Link>
       <Link to="/catalog" className="nav-link">Catálogo</Link>
+      <Link to="/cart" className="nav-link">Carrito de Compras</Link> {/* Enlace al carrito */}
     </nav>
   );
 };
