@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
 import { auth } from '../services/firebase';
+import { redisGet, redisSet, redisDel } from '../services/redis'; // Importar redisSet
 
 const UserOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -84,6 +85,24 @@ const UserOrdersPage = () => {
     }
   };
 
+  // Repetir un pedido
+  const handleRepeatOrder = async (productos) => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión para repetir un pedido.');
+      return;
+    }
+
+    try {
+      // Guardar el carrito en Redis
+      await redisSet(`shoppingCart:${user.uid}`, productos);
+      alert('Pedido repetido. Los productos se han añadido al carrito.');
+    } catch (error) {
+      console.error('Error al repetir el pedido:', error);
+      alert('Hubo un error al repetir el pedido. Inténtalo de nuevo.');
+    }
+  };
+
   if (loading) {
     return <div className="app-container">Cargando pedidos...</div>;
   }
@@ -152,6 +171,14 @@ const UserOrdersPage = () => {
                   )}
                 </div>
               )}
+
+              {/* Botón para repetir el pedido */}
+              <button
+                onClick={() => handleRepeatOrder(order.productos)}
+                className="repeat-order-button"
+              >
+                Repetir Pedido
+              </button>
             </div>
           ))}
         </div>
