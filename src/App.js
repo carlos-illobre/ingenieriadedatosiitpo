@@ -10,6 +10,7 @@ import ProductCatalogPage from './pages/ProductCatalogPage';
 import LoteFormPage from './pages/LoteFormPage';
 import LoteSearchPage from './pages/LoteSearchPage';
 import ShoppingCartPage from './pages/ShoppingCartPage';
+import UserOrdersPage from './pages/UserOrdersPage'; // Nueva página
 import LogsSection from './components/LogsSection';
 import { redisGet } from './services/redis';
 import { auth } from './services/firebase';
@@ -53,6 +54,7 @@ function App() {
             <Route path="/lotes" element={<LoteFormPage addLog={addLog} />} />
             <Route path="/lotes-search" element={<LoteSearchPage addLog={addLog} />} />
             <Route path="/cart" element={<ShoppingCartPage cart={cart} setCart={setCart} />} />
+            <Route path="/orders" element={<UserOrdersPage />} /> {/* Nueva ruta */}
           </Routes>
         </div>
       </div>
