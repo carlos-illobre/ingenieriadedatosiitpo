@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import RegisterPage from './pages/RegisterPage';
@@ -11,6 +11,8 @@ import LoteFormPage from './pages/LoteFormPage';
 import LoteSearchPage from './pages/LoteSearchPage';
 import ShoppingCartPage from './pages/ShoppingCartPage';
 import LogsSection from './components/LogsSection';
+import { redisGet } from './services/redis';
+import { auth } from './services/firebase';
 import './App.css';
 
 function App() {
@@ -21,6 +23,20 @@ function App() {
   const addLog = (type, message) => {
     setLogs((prevLogs) => [...prevLogs, { type, message }]);
   };
+
+  // Recuperar carrito de compras al iniciar sesión
+  useEffect(() => {
+    const fetchCart = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const savedCart = await redisGet(`shoppingCart:${user.uid}`);
+        if (savedCart) {
+          setCart(savedCart);
+        }
+      }
+    };
+    fetchCart();
+  }, []);
 
   return (
     <Router>

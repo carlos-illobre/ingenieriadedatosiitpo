@@ -1,19 +1,27 @@
 import React from 'react';
 import { redisSet } from '../services/redis';
+import { auth } from '../services/firebase';
 
 const ShoppingCartPage = ({ cart, setCart }) => {
+  const updateRedisCart = async (newCart) => {
+    const user = auth.currentUser;
+    if (user) {
+      await redisSet(`shoppingCart:${user.uid}`, newCart);
+    }
+  };
+
   const handleRemoveItem = (index) => {
     const newCart = [...cart];
     newCart.splice(index, 1);
     setCart(newCart);
-    redisSet('shoppingCart', newCart);
+    updateRedisCart(newCart);
   };
 
   const handleQuantityChange = (index, quantity) => {
     const newCart = [...cart];
     newCart[index].quantity = quantity;
     setCart(newCart);
-    redisSet('shoppingCart', newCart);
+    updateRedisCart(newCart);
   };
 
   const calculateTotal = () => {

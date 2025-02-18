@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
 import { redisSet } from '../services/redis';
+import { auth } from '../services/firebase';
 
 const ProductCatalogPage = ({ addLog, cart, setCart }) => {
   const [products, setProducts] = useState([]);
@@ -52,7 +53,10 @@ const ProductCatalogPage = ({ addLog, cart, setCart }) => {
     }
 
     setCart(newCart);
-    redisSet('shoppingCart', newCart);
+    const user = auth.currentUser;
+    if (user) {
+      redisSet(`shoppingCart:${user.uid}`, newCart);
+    }
   };
 
   useEffect(() => {
