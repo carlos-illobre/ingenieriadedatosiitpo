@@ -89,6 +89,7 @@ const ShoppingCartPage = ({ cart, setCart }) => {
       }
 
       // Crear un nuevo nodo 'PEDIDO' en Neo4j
+      const now = new Date();
       const pedido = {
         productos: JSON.stringify(cart.map(item => ({
           name: item.name,
@@ -97,6 +98,10 @@ const ShoppingCartPage = ({ cart, setCart }) => {
         }))), // Guardar como string en formato JSON
         total: calculateTotal(),
         is_paid: false, // Por defecto, el pedido no está pagado
+        fechaCompra: now.toISOString().split('T')[0], // Fecha de compra (YYYY-MM-DD)
+        horaCompra: now.toTimeString().split(' ')[0], // Hora de compra (HH:MM:SS)
+        fechaFacturacion: '', // Inicializar vacío
+        horaFacturacion: '', // Inicializar vacío
       };
 
       // Actualizar el stock de los productos en Neo4j

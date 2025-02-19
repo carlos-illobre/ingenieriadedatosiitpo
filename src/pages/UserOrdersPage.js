@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
 import { auth } from '../services/firebase';
 import { redisGet, redisSet, redisDel } from '../services/redis'; // Importar redisSet
+import { Link } from 'react-router-dom'; // Importar Link
 
 const UserOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -52,24 +53,31 @@ const UserOrdersPage = () => {
       return;
     }
 
+    const now = new Date();
+    const fechaFacturacion = now.toISOString().split('T')[0];
+    const horaFacturacion = now.toTimeString().split(' ')[0];
+
     try {
       // Actualizar el estado del pedido en Neo4j
       const updateOrderQuery = logNeo4jQuery(
         `MATCH (p:PEDIDO)
          WHERE id(p) = $orderId
-         SET p.is_paid = true, p.paymentMethod = $paymentMethod
+         SET p.is_paid = true, p.paymentMethod = $paymentMethod,
+             p.fechaFacturacion = $fechaFacturacion, p.horaFacturacion = $horaFacturacion
          RETURN p`
       );
       await runQuery(updateOrderQuery, {
         orderId,
         paymentMethod,
+        fechaFacturacion,
+        horaFacturacion,
       });
 
       // Actualizar la lista de pedidos en el estado
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.orderId === orderId
-            ? { ...order, is_paid: true, paymentMethod }
+            ? { ...order, is_paid: true, paymentMethod, fechaFacturacion, horaFacturacion }
             : order
         )
       );
@@ -143,6 +151,12 @@ const UserOrdersPage = () => {
                   ))}
                 </tbody>
               </table>
+
+              {order.is_paid && (
+                <Link to={`/order/${order.orderId}`}>
+                  <button>Ver factura</button>
+                </Link>
+              )}
 
               {!order.is_paid && (
                 <div className="payment-section">
