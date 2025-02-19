@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client'; // Importar createRoot
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
 import { auth } from '../services/firebase';
-import { redisGet, redisSet, redisDel } from '../services/redis'; // Importar redisSet
+import { redisGet, redisSet, redisDel } from '../services/redis';
+import { generatePdf } from '../utils/generatePdf';
+import Invoice from '../components/Invoice';
 
 const UserOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrderId, setSelectedOrderId] = useState(null); // ID del pedido seleccionado
-  const [paymentMethod, setPaymentMethod] = useState(''); // Método de pago seleccionado
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('');
 
-  // Obtener los pedidos del usuario al montar el componente
   useEffect(() => {
     const fetchOrders = async () => {
       const user = auth.currentUser;
@@ -25,7 +27,7 @@ const UserOrdersPage = () => {
             const orderId = record.get('orderId').low;
             return {
               ...pedido,
-              productos: JSON.parse(pedido.productos), // Convertir el string JSON a un array de objetos
+              productos: JSON.parse(pedido.productos),
               orderId,
             };
           });
@@ -40,12 +42,10 @@ const UserOrdersPage = () => {
     fetchOrders();
   }, []);
 
-  // Manejar la selección del método de pago
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
   };
 
-  // Confirmar el pago de un pedido
   const handleConfirmPayment = async (orderId) => {
     if (!paymentMethod) {
       alert('Por favor, selecciona un método de pago.');
@@ -81,18 +81,45 @@ const UserOrdersPage = () => {
         )
       );
 
+      // Generar la factura en PDF
+      const orderDetails = orders.find((order) => order.orderId === orderId);
+      const invoiceData = {
+        ...orderDetails,
+        customerName: auth.currentUser.email, // Obtener el nombre del cliente desde Firebase
+        paymentMethod,
+        fechaFacturacion,
+        horaFacturacion,
+      };
+
+      // Crear un div temporal en el DOM
+      const tempDiv = document.createElement('div');
+      document.body.appendChild(tempDiv);
+
+      // Renderizar el componente de factura en el div temporal
+      const root = createRoot(tempDiv); // Usar createRoot
+      root.render(<Invoice orderDetails={invoiceData} />);
+
+      // Esperar a que el componente se renderice
+      setTimeout(() => {
+        // Generar el PDF
+        generatePdf('invoice', `factura_${orderId}`);
+
+        // Limpiar el componente del DOM
+        root.unmount(); // Desmontar el componente
+        document.body.removeChild(tempDiv);
+      }, 100); // Esperar 100ms para asegurar que el componente se haya renderizado
+
       // Limpiar el estado del método de pago y el pedido seleccionado
       setPaymentMethod('');
       setSelectedOrderId(null);
 
-      alert('Pago confirmado correctamente.');
+      alert('Pago confirmado correctamente. La factura se ha generado.');
     } catch (error) {
       console.error('Error al confirmar el pago:', error);
       alert('Hubo un error al confirmar el pago. Inténtalo de nuevo.');
     }
   };
 
-  // Repetir un pedido
   const handleRepeatOrder = async (productos) => {
     const user = auth.currentUser;
     if (!user) {
@@ -101,7 +128,6 @@ const UserOrdersPage = () => {
     }
 
     try {
-      // Guardar el carrito en Redis
       await redisSet(`shoppingCart:${user.uid}`, productos);
       alert('Pedido repetido. Los productos se han añadido al carrito.');
     } catch (error) {
@@ -179,7 +205,6 @@ const UserOrdersPage = () => {
                 </div>
               )}
 
-              {/* Botón para repetir el pedido */}
               <button
                 onClick={() => handleRepeatOrder(order.productos)}
                 className="repeat-order-button"
