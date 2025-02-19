@@ -6,10 +6,11 @@ import { auth } from '../services/firebase';
 const ShoppingCartPage = ({ cart, setCart }) => {
   const [loading, setLoading] = useState(true);
   const [stockError, setStockError] = useState(''); // Estado para manejar errores de stock
+  const [membership, setMembership] = useState(''); // Estado para almacenar el nivel de membresía del usuario
 
-  // Recuperar el carrito de compras al montar el componente
+  // Recuperar el carrito de compras y el nivel de membresía al montar el componente
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchCartAndMembership = async () => {
       const user = auth.currentUser;
       if (user) {
         const savedCart = await redisGet(`shoppingCart:${user.uid}`);
@@ -21,6 +22,13 @@ const ShoppingCartPage = ({ cart, setCart }) => {
         } else {
           setCart([]); // Si no es un array, inicializar como vacío
         }
+
+        // Recuperar el valor de membership del nodo de usuario en Neo4j
+        const query = logNeo4jQuery(`MATCH (u:User {email: $email}) RETURN u.membership AS membership`);
+        const result = await runQuery(query, { email: user.email });
+        const membershipValue = result.records[0].get('membership');
+        setMembership(membershipValue);
+
       } else {
         console.log('Usuario no autenticado'); // Debugging
         setCart([]); // Si no hay usuario, inicializar como vacío
@@ -28,7 +36,7 @@ const ShoppingCartPage = ({ cart, setCart }) => {
       setLoading(false);
     };
 
-    fetchCart();
+    fetchCartAndMembership();
   }, [setCart]);
 
   // Actualizar el carrito en Redis
@@ -60,6 +68,18 @@ const ShoppingCartPage = ({ cart, setCart }) => {
   // Calcular el total de la compra
   const calculateTotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  // Calcular el total con descuento según la membresía
+  const calculateDiscountedTotal = () => {
+    const total = calculateTotal();
+    if (membership === 'TOP') {
+      return total * 0.9; // 10% de descuento
+    } else if (membership === 'MEDIUM') {
+      return total * 0.95; // 5% de descuento
+    } else {
+      return total; // Sin descuento
+    }
   };
 
   // Finalizar la compra
@@ -96,7 +116,7 @@ const ShoppingCartPage = ({ cart, setCart }) => {
           quantity: item.quantity,
           price: item.price, // Opcional: guardar el precio si es necesario
         }))), // Guardar como string en formato JSON
-        total: calculateTotal(),
+        total: calculateDiscountedTotal(), // Total con descuento
         is_paid: false, // Por defecto, el pedido no está pagado
         fechaCompra: now.toISOString().split('T')[0], // Fecha de compra (YYYY-MM-DD)
         horaCompra: now.toTimeString().split(' ')[0], // Hora de compra (HH:MM:SS)
@@ -213,6 +233,7 @@ const ShoppingCartPage = ({ cart, setCart }) => {
             </tbody>
           </table>
           <h2>Total de la Compra: ${calculateTotal()}</h2>
+          <h2>Total con Descuento: ${calculateDiscountedTotal()}</h2>
           <button onClick={handleFinalizePurchase}>Finalizar Compra</button>
         </>
       )}
