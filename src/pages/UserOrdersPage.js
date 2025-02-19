@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
 import { auth } from '../services/firebase';
 import { redisGet, redisSet, redisDel } from '../services/redis'; // Importar redisSet
-import { Link } from 'react-router-dom'; // Importar Link
 
 const UserOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -151,12 +150,6 @@ const UserOrdersPage = () => {
                   ))}
                 </tbody>
               </table>
-
-              {order.is_paid && (
-                <Link to={`/order/${order.orderId}`}>
-                  <button>Ver factura</button>
-                </Link>
-              )}
 
               {!order.is_paid && (
                 <div className="payment-section">
