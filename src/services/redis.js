@@ -8,7 +8,7 @@ export const redisSet = async (key, value) => {
       Authorization: `Bearer ${REDIS_TOKEN}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify([value]),
+    body: JSON.stringify(value), // Guardar el valor como JSON plano
   });
 
   return response.ok;
@@ -24,7 +24,7 @@ export const redisGet = async (key) => {
 
   if (!response.ok) return null;
   const data = await response.json();
-  return data.result;
+  return JSON.parse(data.result); // Parsear el JSON almacenado
 };
 
 export const redisDel = async (key) => {

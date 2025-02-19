@@ -55,42 +55,41 @@ const LoteFormPage = ({ addLog }) => {
       console.error('Error en el registro:', error);
     }
   };
-
-  return (
-    <div className="app-container">
-      <h1>Alta de Lotes</h1>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <select
-          value={selectedProducto}
-          onChange={(e) => setSelectedProducto(e.target.value)}
-          required
-        >
-          <option value="">Selecciona un producto</option>
-          {productos.map((producto, index) => (
-            <option key={index} value={producto.name}>
-              {producto.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          placeholder="Cantidad"
-          value={cantidad}
-          onChange={(e) => setCantidad(e.target.value)}
-          required
-        />
-        <input
-          type="date"
-          placeholder="Fecha de vencimiento"
-          value={fechaVencimiento}
-          onChange={(e) => setFechaVencimiento(e.target.value)}
-          required
-        />
-        <button type="submit">Guardar Lote</button>
-      </form>
-    </div>
-  );
+return (
+  <div className="app-container">
+    <h1>Alta de Lotes</h1>
+    {error && <div className="error-message">{error}</div>}
+    <form onSubmit={handleSubmit} className="lote-form">
+      <select
+        value={selectedProducto}
+        onChange={(e) => setSelectedProducto(e.target.value)}
+        required
+      >
+        <option value="">Selecciona un producto</option>
+        {productos.map((producto, index) => (
+          <option key={index} value={producto.name}>
+            {producto.name}
+          </option>
+        ))}
+      </select>
+      <input
+        type="number"
+        placeholder="Cantidad"
+        value={cantidad}
+        onChange={(e) => setCantidad(e.target.value)}
+        required
+      />
+      <input
+        type="date"
+        placeholder="Fecha de vencimiento"
+        value={fechaVencimiento}
+        onChange={(e) => setFechaVencimiento(e.target.value)}
+        required
+      />
+      <button type="submit">Guardar Lote</button>
+    </form>
+  </div>
+);
 };
 
 export default LoteFormPage;

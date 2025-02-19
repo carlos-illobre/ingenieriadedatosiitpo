@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { runQuery, logNeo4jQuery } from '../services/neo4j';
+import { redisGet, redisSet } from '../services/redis'; // Importar redisGet
+import { auth } from '../services/firebase';
 
-const ProductCatalogPage = ({ addLog }) => {
+const ProductCatalogPage = ({ addLog, cart, setCart }) => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5); // Número de productos por página
+  const [loading, setLoading] = useState(true); // Estado para manejar la carga
 
-  // Función para convertir un objeto {low, high} a número
+  // Convertir un objeto {low, high} de Neo4j a número
   const convertNeo4jNumber = (value) => {
     if (value && typeof value === 'object' && 'low' in value && 'high' in value) {
       return value.low; // O value.high si es necesario
@@ -26,7 +29,7 @@ const ProductCatalogPage = ({ addLog }) => {
       const result = await runQuery(query);
       const productsWithQuantity = result.records.map((record) => {
         const product = record.get('p').properties;
-        const totalCantidad = convertNeo4jNumber(record.get('totalCantidad')) || 0;
+        const totalCantidad = convertNeo4jNumber(record.get('totalCantidad')) || 0; // Convertir a número
         return {
           ...product,
           price: convertNeo4jNumber(product.price), // Convertir el precio a número
@@ -40,8 +43,53 @@ const ProductCatalogPage = ({ addLog }) => {
     }
   };
 
+  // Recuperar el carrito del usuario al montar el componente
+  const fetchCart = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const savedCart = await redisGet(`shoppingCart:${user.uid}`);
+      console.log('Carrito recuperado de Redis:', savedCart); // Debugging
+
+      // Verificar que savedCart sea un array
+      if (savedCart && Array.isArray(savedCart)) {
+        setCart(savedCart);
+      } else {
+        setCart([]); // Si no es un array, inicializar como vacío
+      }
+    } else {
+      console.log('Usuario no autenticado'); // Debugging
+      setCart([]); // Si no hay usuario, inicializar como vacío
+    }
+    setLoading(false);
+  };
+
+  // Agregar un producto al carrito
+  const handleAddToCart = (product) => {
+    const newCart = [...cart];
+    const existingItem = newCart.find((item) => item.name === product.name);
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      newCart.push({ ...product, quantity: 1 });
+    }
+
+    setCart(newCart);
+    const user = auth.currentUser;
+    if (user) {
+      redisSet(`shoppingCart:${user.uid}`, newCart); // Guardar como array plano
+      console.log('Producto agregado al carrito:', newCart); // Debugging
+    }
+  };
+
+  // Cargar productos y carrito al montar el componente
   useEffect(() => {
-    fetchProducts();
+    const loadData = async () => {
+      await fetchProducts();
+      await fetchCart();
+    };
+
+    loadData();
   }, []);
 
   // Calcular los índices para la paginación
@@ -51,6 +99,10 @@ const ProductCatalogPage = ({ addLog }) => {
 
   // Cambiar de página
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  if (loading) {
+    return <div className="app-container">Cargando...</div>;
+  }
 
   return (
     <div className="app-container">
@@ -70,6 +122,7 @@ const ProductCatalogPage = ({ addLog }) => {
               <p>{product.description}</p>
               <p><strong>Precio:</strong> ${product.price}</p>
               <p><strong>Cantidad Total:</strong> {product.totalCantidad}</p>
+              <button onClick={() => handleAddToCart(product)}>Agregar al Carrito</button>
             </div>
           </div>
         ))}

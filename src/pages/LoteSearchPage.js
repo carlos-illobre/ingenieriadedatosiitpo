@@ -44,10 +44,10 @@ const LoteSearchPage = ({ addLog }) => {
   useEffect(() => {
     fetchLotes();
   }, [selectedProducto]);
-
-  return (
-    <div className="app-container">
-      <h1>Búsqueda de Lotes</h1>
+return (
+  <div className="app-container">
+    <h1>Búsqueda de Lotes</h1>
+    <div className="lote-search">
       <select
         value={selectedProducto}
         onChange={(e) => setSelectedProducto(e.target.value)}
@@ -76,7 +76,8 @@ const LoteSearchPage = ({ addLog }) => {
         </tbody>
       </table>
     </div>
-  );
+  </div>
+);
 };
 
 export default LoteSearchPage;
